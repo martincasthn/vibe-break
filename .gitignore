@@ -1,0 +1,14 @@
+# Personal decision logs stay local
+DECISION_LOG.md
+.agent/DECISION_LOG.md
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# Node (if tooling is added later)
+node_modules/
