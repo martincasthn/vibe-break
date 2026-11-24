@@ -85,3 +85,11 @@ After every completed fix, feature, revert, or pivot, append one entry (only onc
 - **Open Questions / Next:** anything left unverified
 
 Keep entries short. Newest at the bottom. The log is personal working memory and normally stays out of version control.
+
+## 7. Clean Git Attribution (No AI Co-Authors)
+
+The user owns 100% of the repository history. Never credit AI tools in Git metadata:
+
+- **No `Co-Authored-By` trailers:** Never add `Co-Authored-By: Claude`, `Co-Authored-By: Cursor`, or any AI model/tool trailer to commit messages.
+- **No "Generated with" footers:** Never append AI watermarks, links, or tool signatures to commit messages or pull request descriptions.
+- **Preserve local git identity:** Never override `user.name` or `user.email`. Write plain, human commit messages describing only the change.
