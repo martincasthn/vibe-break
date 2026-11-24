@@ -44,16 +44,31 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 | **Secrets leaking into notes.** Tokens and passwords get pasted into session summaries. | Docs name the environment variable, never the value. Secrets it finds are flagged for rotation. |
 | **Debugging a server that isn't running.** Stale caches, old IPs, the wrong build. | Checks the process, host, build, cache and env file first, and hits the endpoint itself. |
 | **Big-bang sessions.** Six objectives at once, and a middleware file that was never wired in. | One change, one check, then the next. New modules must actually be imported and used. Handoffs say what's done, half-done and untouched. |
+| **DevOps scripts that "succeed" but didn't.** A Paramiko command exit code nobody read, a CRLF bash script that dies with `bad interpreter`, a missing `rsync` slash, a password hard-coded into `deploy.ps1`. | Real exit codes are checked (`recv_exit_status()`, `$LASTEXITCODE`, `set -euo pipefail`), line endings are fixed per script type, and keys are referenced by path. If a prompt blocks the agent, it writes a local script that reads secrets from environment variables, never values. |
+| **Surprise "rotate everything."** One change suddenly means new keys, tokens and passwords everywhere. | The agent names exactly which credentials are affected, says it doesn't have to happen right now, and walks you through one credential at a time when you're ready. |
 | **Windows encoding accidents.** A shell rewrite breaks UTF-8, or a 4,000-line phantom line-ending diff appears. | Edits go through the editor tool, diff size is checked, and `.gitattributes` / `.editorconfig` are suggested. |
 | **AI co-authors in your history.** Agents add `Co-Authored-By` trailers and "Generated with" footers to your commits. | Keeps git metadata clean: no AI trailers or footers, and no changes to your `user.name` / `user.email`. |
 | **Filler and fake apologies.** "Certainly! I'm so sorry for the confusion…" | No fluff. It confirms a 2–3 bullet plan before writing code. |
 
 ## How it works
 
-1. **First run:** no `DECISION_LOG.md` yet, so the agent audits the workspace and reports a 4-line status: detected stack, docs/PRD, structure, and what you want to do. It creates `AGENTS.md` and `DECISION_LOG.md` only after you confirm.
+1. **First run:** no `DECISION_LOG.md` yet, so the agent audits the workspace and reports a 5-line status: detected stack, docs/PRD, structure, useful skills and tools, and what you want to do. It creates `AGENTS.md` and `DECISION_LOG.md` only after you confirm.
 2. **Returning sessions:** the agent reads `AGENTS.md` and the last 5–10 log entries to restore context and spot loops.
-3. **During work:** the copy-paste guard, docs routing and loop detection run as needed. Detailed checklists in `references/` (environment check, docs hygiene, slices and handoff, Windows edits, log format) load only when the situation calls for them, which keeps the always-loaded core small and cheap on tokens.
-4. **After each change:** the agent appends a log entry with a timestamp, area, change, human context and open questions.
+3. **During work:** the copy-paste guard, docs routing and loop detection run as needed. Detailed checklists in `references/` (environment check, remote commands and scripts, docs hygiene, slices and handoff, Windows edits, log format) load only when the situation calls for them, which keeps the always-loaded core small and cheap on tokens.
+4. **After each change:** the agent appends a short log entry. A real one looks like this:
+
+```markdown
+- [2026-11-24 15:40] - Fix invoice PDF totals
+  - Area / Tag: billing-pdf
+  - Change: Rounded line totals before summing instead of after.
+  - Why / Context: Third attempt today; user tired and on a deadline. The earlier fix came from another agent's paste that assumed a different currency library.
+  - Status: verified (unit tests 18/18), not deployed
+  - Open Questions / Next: Confirm rounding rule with accounting.
+```
+
+Three unresolved entries with the same tag tell the agent it's in a loop.
+
+Trivial edits (a typo, a rename, formatting) skip the plan-and-confirm step, so the skill stays out of your way on small things.
 
 ## Auto-trigger (optional)
 
