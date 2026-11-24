@@ -85,6 +85,16 @@ DECISION_LOG.md
 .agent/DECISION_LOG.md
 ```
 
+## About me (and why this exists)
+
+I'm not an AI engineer, and I wouldn't call myself an expert coder. I spent about nine years in print design and production, then taught myself automation and software from 2022 on. Today I build automations, internal tools and web apps from Honduras.
+
+I didn't build vibe-break from theory. Over many projects I fell, many times: agents that said "done" when nothing worked, fixes pasted from one AI into another, the same bug "solved" five times in an afternoon, and billions of tokens burned across multiple agents. Along the way I kept private notes of every changelog, failure and late night. This skill is those notes turned into rules, so the next person (and the next agent) doesn't have to learn them the hard way.
+
+I hope you find it useful. Issues and pull requests are welcome, especially stories of where it helped or got in your way.
+
+**Martín Castellanos** · [martincast.site](https://martincast.site/) · [LinkedIn](https://www.linkedin.com/in/martin-castellanos-a1bb58144/)
+
 ## License
 
 [MIT](LICENSE) © Martín Castellanos
