@@ -21,7 +21,7 @@ DevOps failures are often not logic bugs. They are a wrong exit code, a mangled 
 
 - Scripts that run on Linux must use LF. A CRLF shell script fails with `bad interpreter` or `$'\r': command not found`. Enforce with `.gitattributes` (`*.sh text eol=lf`).
 - Windows `.bat` and `.cmd` files are safest with CRLF; mark them `eol=crlf` in `.gitattributes`.
-- Keep scripts UTF-8 without BOM unless the tool requires one. Windows PowerShell 5.1 `Out-File` and `Set-Content` can add a BOM or use the wrong code page.
+- Keep scripts UTF-8 without BOM, with one exception: Windows PowerShell 5.1 reads a BOM-less `.ps1` as the legacy code page, so a `.ps1` containing non-ASCII characters (accents, symbols) needs UTF-8 with BOM, or should stay ASCII-only. PowerShell 7+ reads BOM-less UTF-8 correctly. Also note that 5.1's `Out-File` and `Set-Content` can add a BOM or use the wrong code page when writing.
 - Trailing slashes change meaning: `rsync src/ dest` copies contents, `rsync src dest` copies the folder. Check every path in `scp`, `rsync`, and `cp -r`.
 - Do not send Windows paths (backslashes, drive letters) to a Linux host. Quote paths with spaces. Watch nested quoting in `ssh host "cmd"` and `cmd /c "..."`.
 

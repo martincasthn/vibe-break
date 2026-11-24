@@ -47,7 +47,7 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 | **DevOps scripts that "succeed" but didn't.** A Paramiko command exit code nobody read, a CRLF bash script that dies with `bad interpreter`, a missing `rsync` slash, a password hard-coded into `deploy.ps1`. | Real exit codes are checked (`recv_exit_status()`, `$LASTEXITCODE`, `set -euo pipefail`), line endings are fixed per script type, and keys are referenced by path. If a prompt blocks the agent, it writes a local script that reads secrets from environment variables, never values. |
 | **Surprise "rotate everything."** One change suddenly means new keys, tokens and passwords everywhere. | The agent names exactly which credentials are affected, says it doesn't have to happen right now, and walks you through one credential at a time when you're ready. |
 | **Windows encoding accidents.** A shell rewrite breaks UTF-8, or a 4,000-line phantom line-ending diff appears. | Edits go through the editor tool, diff size is checked, and `.gitattributes` / `.editorconfig` are suggested. |
-| **AI co-authors in your history.** Agents add `Co-Authored-By` trailers and "Generated with" footers to your commits. | Keeps git metadata clean: no AI trailers or footers, and no changes to your `user.name` / `user.email`. |
+| **AI co-authors in your history.** Agents add `Co-Authored-By` trailers and "Generated with" footers to your commits. | Keeps git metadata clean: no AI trailers or footers, and no changes to your `user.name` / `user.email` unless you ask. |
 | **Filler and fake apologies.** "Certainly! I'm so sorry for the confusion…" | No fluff. It confirms a 2–3 bullet plan before writing code. |
 
 ## How it works
@@ -68,7 +68,7 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 
 Three unresolved entries with the same tag tell the agent it's in a loop.
 
-Trivial edits (a typo, a rename, formatting) skip the plan-and-confirm step, so the skill stays out of your way on small things.
+Trivial edits (a typo, a rename, formatting) skip the plan-and-confirm step, so the skill stays out of your way on small things. To turn it off for the rest of a session, say "vibe-break off".
 
 ## Auto-trigger (optional)
 

@@ -92,7 +92,7 @@ Not: "Resetting the DB to clean things up."
 
 ## 8. Clean Git Attribution
 
-Never add `Co-Authored-By` trailers for AI tools, "Generated with" footers, or tool signatures to commits or PRs. Never change `user.name` or `user.email`. Plain human commit messages only.
+Never add `Co-Authored-By` trailers for AI tools, "Generated with" footers, or tool signatures to commits or PRs. Never change `user.name` or `user.email` unless the user explicitly asks. Plain human commit messages only.
 
 ## 9. Read When Needed
 
