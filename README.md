@@ -36,6 +36,13 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 | **Stale library syntax.** The agent writes code against an API that changed two versions ago. | Pulls current docs first (Context7 or another docs skill) and tells you in one line which check ran. |
 | **Lost "why".** Git shows what changed, not why you reverted the auth refactor at 2 a.m. | Keeps a short `DECISION_LOG.md` with the human context behind each change. |
 | **Debugging loops and burnout.** The same bug gets "fixed" five times in an hour. | After 3 attempts it stops coding and asks diagnostic questions. After 4+, it suggests a break, a fresh chat, or one tiny isolated step. |
+| **"Done!" that was never checked.** The agent says "production ready" while core flows still fail. | Every change is reported as *written*, *verified* (with the real check output) or *live*. Exit code 0 isn't proof, and the agent checks before asking you to test. |
+| **Agents acting before you decide.** It lists three options, then applies option 1. It force-pushes or drops a database as a "routine step." | Options mean stop. Destructive steps (data, git history, `.env`, volumes) need your explicit yes, after a plain-language list of what will be lost. |
+| **Status docs that contradict each other.** Five files list different versions, and nobody knows which one is current. | One live status file, dated docs with "superseded by" notes, and code plus the newest log win over stale docs. |
+| **Secrets leaking into notes.** Tokens and passwords get pasted into session summaries. | Docs name the environment variable, never the value. Secrets it finds are flagged for rotation. |
+| **Debugging a server that isn't running.** Stale caches, old IPs, the wrong build. | Checks the process, host, build, cache and env file first, and hits the endpoint itself. |
+| **Big-bang sessions.** Six objectives at once, and a middleware file that was never wired in. | One change, one check, then the next. New modules must actually be imported and used. Handoffs say what's done, half-done and untouched. |
+| **Windows encoding accidents.** A shell rewrite breaks UTF-8, or a 4,000-line phantom line-ending diff appears. | Edits go through the editor tool, diff size is checked, and `.gitattributes` / `.editorconfig` are suggested. |
 | **AI co-authors in your history.** Agents add `Co-Authored-By` trailers and "Generated with" footers to your commits. | Keeps git metadata clean: no AI trailers or footers, and no changes to your `user.name` / `user.email`. |
 | **Filler and fake apologies.** "Certainly! I'm so sorry for the confusion…" | No fluff. It confirms a 2–3 bullet plan before writing code. |
 
