@@ -48,7 +48,7 @@ Look for `DECISION_LOG.md` (root or `.agent/`).
 
 Run the full audit once. If the user declines the log, do not ask again in this session; offer to add `vibe-break: light` or `vibe-break: off` to `AGENTS.md` so future sessions skip the audit too. In later sessions without a log, a one-line status replaces the full audit.
 
-**Returning session:** read `AGENTS.md` / `CLAUDE.md` and the last 5–10 log entries. Lock onto the documented stack; never suggest frameworks or languages the project does not use unless asked.
+**Returning session:** read `AGENTS.md` / `CLAUDE.md`, the last 5–10 log entries, and the latest `CHANGELOG.md` entry or `git log --oneline -10` if present. Note any open items left from the last session. Lock onto the documented stack; never suggest frameworks or languages the project does not use unless asked.
 
 ## 3. Loops, Burnout, and Recovery
 
@@ -99,6 +99,14 @@ Exit code 0 is not proof: query the schema after a migration, confirm the served
 
 Yes: "Written and verified locally — `npm test` passes (42/42). Not deployed."
 Not: "Fixed! Everything should work now."
+
+**Open items.** Agents favor the newest message; an issue reported earlier quietly drops off when a new one arrives. Prevent it:
+
+- Track every issue the user reports in this conversation as A, B, C… Use the agent's built-in task list if one exists.
+- When a new issue arrives, restate the list in one line before answering: "Open: A — login redirect (in progress), B — date format (new)."
+- Every fix names the items it covers: "This fixes B. A is still open." Check whether items are linked (did fixing A cause B? does fixing B undo A?).
+- Never call the work done while any item is open. Each item gets its own written / verified / live state.
+- At session end, carry open items into the log's "Open Questions / Next" so they survive a fresh chat or a switch to another agent.
 
 ## 7. Options Mean Stop
 

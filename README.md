@@ -57,6 +57,7 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 | **"I'm fried, but I can't stop."** It's 9 a.m. and your shift ends at 5 p.m., so "take a break" doesn't help. | A Recovery Protocol: restate the goal, check git history, check the docs, audit any pasted output, verify against live docs and the web, then take one small verified step. |
 | **"I'm done. Do whatever you want."** A frustrated one-liner that an agent reads as permission to rewrite everything. | It stops, rebuilds the state itself from git and the log (what changed, what was tested, what failed), asks at most two yes/no questions, and offers one small safe step. Users who always write briefly are not treated as being in crisis. |
 | **Not knowing what's already installed.** Useful skills and tools sit unused, and every scan burns the expensive model. | The first-run audit lists the skills and tools that matter, suggests at most two, and suggests cheaper subagents for read-only work. |
+| **The forgotten first bug.** You report bug A, then bug B, and the fix covers only B. A quietly disappears. | Every reported issue is tracked as A, B, C… and the list is restated when a new one arrives. Each fix says which items it covers, and the work isn't "done" until every item is closed. |
 | **"Done!" that was never checked.** The agent says "production ready" while core flows still fail. | Every change is reported as *written*, *verified* (with the real check output) or *live*. Exit code 0 isn't proof, and the agent checks before asking you to test. |
 | **Agents acting before you decide.** It lists three options, then applies option 1. It force-pushes or drops a database as a "routine step." | Options mean stop. Destructive steps (data, git history, `.env`, volumes) need your explicit yes, after a plain-language list of what will be lost. |
 | **Status docs that contradict each other.** Five files list different versions, and nobody knows which one is current. | One live status file, dated docs with "superseded by" notes, and code plus the newest log win over stale docs. |
@@ -72,7 +73,7 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 ## How it works
 
 1. **First run:** no `DECISION_LOG.md` yet, so the agent audits the workspace and reports a 5-line status: project type and mode (with the detected stack), docs/PRD, structure, useful skills and tools, and what you want to do. It creates `AGENTS.md` and `DECISION_LOG.md` only after you confirm. If you decline, it doesn't ask again, and later sessions get a one-line status instead of the full audit.
-2. **Returning sessions:** the agent reads `AGENTS.md` and the last 5–10 log entries to restore context and spot loops.
+2. **Returning sessions:** the agent reads `AGENTS.md`, the last 5–10 log entries and the latest changelog entry or git history to restore context, spot loops and pick up open items.
 3. **During work:** the copy-paste guard, docs routing and loop detection run as needed. Detailed checklists in `references/` (environment check, remote commands and scripts, docs hygiene, slices and handoff, Windows edits, log format) load only when the situation calls for them, which keeps the always-loaded core small and cheap on tokens.
 4. **After each change:** the agent appends a short log entry. A real one looks like this:
 
