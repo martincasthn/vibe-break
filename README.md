@@ -6,14 +6,32 @@ Works with any [Agent Skills](https://agentskills.io)-compatible tool: Claude Co
 
 ## Install
 
+**This project only** (run inside the project folder):
+
 ```bash
 npx skills add martincasthn/vibe-break
 ```
 
-Short form:
+**All your projects** (global, user-level):
 
 ```bash
-npx skills i martincasthn/vibe-break
+npx skills add martincasthn/vibe-break -g
+```
+
+Short form: `npx skills i martincasthn/vibe-break`. To uninstall: `npx skills remove vibe-break` (add `-g` for a global install).
+
+### Project modes
+
+A global install doesn't force software rules onto every project. On the first run the agent picks a mode:
+
+- **Full mode:** software projects (apps, services, scripts, infrastructure). Every rule applies.
+- **Light mode:** video, writing, design, research and other non-software work. Only the human rules apply: no fluff, loop and burnout care, the copy-paste guard, verify before "done" (for example, actually checking the render), options mean stop, and clean git.
+
+To override it for one project, add a line to that project's `AGENTS.md` or `CLAUDE.md`:
+
+```text
+vibe-break: light
+vibe-break: off
 ```
 
 **Manual install:** copy `skills/vibe-break/` into your agent's skills folder.
@@ -37,6 +55,7 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 | **Lost "why".** Git shows what changed, not why you reverted the auth refactor at 2 a.m. | Keeps a short `DECISION_LOG.md` with the human context behind each change. |
 | **Debugging loops and burnout.** The same bug gets "fixed" five times in an hour. | After 3 attempts it stops coding and asks diagnostic questions. After 4+, it suggests a break, a fresh chat, or one tiny isolated step. |
 | **"I'm fried, but I can't stop."** It's 9 a.m. and your shift ends at 5 p.m., so "take a break" doesn't help. | A Recovery Protocol: restate the goal, check git history, check the docs, audit any pasted output, verify against live docs and the web, then take one small verified step. |
+| **"I'm done. Do whatever you want."** A frustrated one-liner that an agent reads as permission to rewrite everything. | It stops, rebuilds the state itself from git and the log (what changed, what was tested, what failed), asks at most two yes/no questions, and offers one small safe step. Users who always write briefly are not treated as being in crisis. |
 | **Not knowing what's already installed.** Useful skills and tools sit unused, and every scan burns the expensive model. | The first-run audit lists the skills and tools that matter, suggests at most two, and suggests cheaper subagents for read-only work. |
 | **"Done!" that was never checked.** The agent says "production ready" while core flows still fail. | Every change is reported as *written*, *verified* (with the real check output) or *live*. Exit code 0 isn't proof, and the agent checks before asking you to test. |
 | **Agents acting before you decide.** It lists three options, then applies option 1. It force-pushes or drops a database as a "routine step." | Options mean stop. Destructive steps (data, git history, `.env`, volumes) need your explicit yes, after a plain-language list of what will be lost. |
@@ -52,7 +71,7 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 
 ## How it works
 
-1. **First run:** no `DECISION_LOG.md` yet, so the agent audits the workspace and reports a 5-line status: detected stack, docs/PRD, structure, useful skills and tools, and what you want to do. It creates `AGENTS.md` and `DECISION_LOG.md` only after you confirm.
+1. **First run:** no `DECISION_LOG.md` yet, so the agent audits the workspace and reports a 5-line status: project type and mode (with the detected stack), docs/PRD, structure, useful skills and tools, and what you want to do. It creates `AGENTS.md` and `DECISION_LOG.md` only after you confirm. If you decline, it doesn't ask again, and later sessions get a one-line status instead of the full audit.
 2. **Returning sessions:** the agent reads `AGENTS.md` and the last 5–10 log entries to restore context and spot loops.
 3. **During work:** the copy-paste guard, docs routing and loop detection run as needed. Detailed checklists in `references/` (environment check, remote commands and scripts, docs hygiene, slices and handoff, Windows edits, log format) load only when the situation calls for them, which keeps the always-loaded core small and cheap on tokens.
 4. **After each change:** the agent appends a short log entry. A real one looks like this:
@@ -74,7 +93,7 @@ Trivial edits (a typo, a rename, formatting) skip the plan-and-confirm step, so 
 
 To load the skill at the start of every session, add a line like this to your global `AGENTS.md`, `CLAUDE.md` or rules file:
 
-> At the start of every coding session, and whenever I paste large output from another AI agent, repeat a fix 3+ times, or seem frustrated, load and follow the `vibe-break` skill.
+> At the start of every project session, and whenever I paste large output from another AI agent, repeat a fix 3+ times, seem frustrated, or suddenly send short "I'm done, just fix it" messages, load and follow the `vibe-break` skill (it picks full or light mode by project type).
 
 ## Privacy
 
