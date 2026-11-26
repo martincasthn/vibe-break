@@ -58,6 +58,7 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 | **"I'm done. Do whatever you want."** A frustrated one-liner that an agent reads as permission to rewrite everything. | It stops, rebuilds the state itself from git and the log (what changed, what was tested, what failed), asks at most two yes/no questions, and offers one small safe step. Users who always write briefly are not treated as being in crisis. |
 | **Not knowing what's already installed.** Useful skills and tools sit unused, and every scan burns the expensive model. | The first-run audit lists the skills and tools that matter, suggests at most two, and suggests cheaper subagents for read-only work. |
 | **The forgotten first bug.** You report bug A, then bug B, and the fix covers only B. A quietly disappears. | Every reported issue is tracked as A, B, C… and the list is restated when a new one arrives. Each fix says which items it covers, and the work isn't "done" until every item is closed. |
+| **Onboarding that eats your context.** The "quick look" reads every script, reads some twice, and searches your whole drive. | The audit has a budget: skim only, stay in the project, never re-read. Big projects go to a cheap scout model, and its summary is spot-checked before anyone acts on it. |
 | **"Done!" that was never checked.** The agent says "production ready" while core flows still fail. | Every change is reported as *written*, *verified* (with the real check output) or *live*. Exit code 0 isn't proof, and the agent checks before asking you to test. |
 | **Agents acting before you decide.** It lists three options, then applies option 1. It force-pushes or drops a database as a "routine step." | Options mean stop. Destructive steps (data, git history, `.env`, volumes) need your explicit yes, after a plain-language list of what will be lost. |
 | **Status docs that contradict each other.** Five files list different versions, and nobody knows which one is current. | One live status file, dated docs with "superseded by" notes, and code plus the newest log win over stale docs. |
@@ -89,6 +90,20 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 Three unresolved entries with the same tag tell the agent it's in a loop.
 
 Trivial edits (a typo, a rename, formatting) skip the plan-and-confirm step, so the skill stays out of your way on small things. To turn it off for the rest of a session, say "vibe-break off".
+
+## Keeping context cheap
+
+vibe-break itself is small: about 3K tokens of core rules, with checklists loaded only when needed. Onboarding is where context usually goes, so the audit has a budget:
+
+- **It skims.** A top-level listing, manifests and the main docs. No source files, no searching outside the project, and no reading the same file twice.
+- **Scouts for big projects.** When subagents are available, a cheaper model does the scan and returns a summary with file paths. The main agent spot-checks the claims that matter before acting, because small or older models summarize loosely.
+- **Model roles:** scout (cheap) reads, builder (mid-tier) edits, thinker (top model) plans and decides.
+
+Much of each session's cost isn't vibe-break at all. It's everything installed in your agent. In Claude Code, for example:
+
+- Every installed skill puts its description in context in **every** session, global and project skills alike. The full skill loads only when used.
+- Every enabled plugin and MCP server adds its tools and instructions too.
+- To keep a plugin out of one project, set it to `false` under `enabledPlugins` in that project's `.claude/settings.local.json`, or use `claude plugin disable`. Skills you only run by hand can use `disable-model-invocation: true` so their description stays out of context.
 
 ## Auto-trigger (optional)
 
