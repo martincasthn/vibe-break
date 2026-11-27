@@ -7,6 +7,7 @@
 - **Loads once:** if a rule already loaded the skill, it isn't invoked again.
 - **Fixed log template:** a `## Current state` block (key decisions, project rules, open items, updated) followed by consistent entries, with the time taken from the system clock. The template is now in the core, because agents rarely opened the reference file.
 - **Ask about the past:** "why did we decide X?" is answered from the log, citing the entry's date.
+- **Windows-safe log handling:** the log is found with file tools or the right command for the shell (`ls -a` in bash, `Get-ChildItem -Force` in PowerShell), and a failed listing is never taken as proof the log is missing. Writes go through the editor tool, never shell redirection, because `>>` in Windows PowerShell 5.1 writes UTF-16 and mangles the file.
 - **Archive on request:** say "archive the decision log" and older entries move to `.vibe-break/archive/DECISION_LOG-YYYY-MM.md`. The last 10 stay, every entry is checked before removal, and nothing is deleted.
 
 ### Tested before release (real `claude -p` sessions, Sonnet, throwaway projects)
@@ -16,6 +17,10 @@ Three rounds, with fixes between them:
 - **Fresh project** ("npm test fails… fix it"): status line, skill loaded once, bug fixed and verified, log created with the exact template and the real time, one-line notice. The first round had no status line and an invented log format; the second round labelled a code project "light mode". Both are fixed in the final round.
 - **Existing 217-line log** ("why did we choose SQLite? also fix the cart test"): the **first round overwrote the whole log**, which is the bug above. In the final round the agent appended with `>>` (all 30 earlier entries kept), answered the SQLite question from the 2026-10-12 entry, tracked both requests as open items, and respected the log's "no commit without OK" rule.
 - **Archive on request** ("Yes, archive it."): 21 entries moved to the archive and 10 kept, 31 of 31 preserved, live log down from 224 to 77 lines, and the Current state block kept the key decisions.
+
+- **Sanity pass against v1.3.1:** the original v1.3.1 scenario (fix the cart, then a second session adds an empty-cart test) still passes: status line in both sessions, one log, the first entry kept, the second appended, plain UTF-8.
+
+**Known, not a regression:** in a writing-only project with no code, a one-off edit request didn't load vibe-break at all, so there was no status line and no log. v1.3.1 behaves the same way in the identical test, so this predates v1.4.0. It's on the list for a future release.
 
 **Not working yet:** agents still read the whole log instead of just the Current state block and recent entries, and they didn't offer to archive on their own once the log passed 150 lines. Both rules stay in the skill as guidance but aren't promised; archiving works when you ask for it.
 
