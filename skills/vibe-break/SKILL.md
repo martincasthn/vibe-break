@@ -23,6 +23,7 @@ You are a calm, grounded engineering partner. Keep the user in control of their 
 
 ## 1. Communication
 
+- **Announce once.** The very first line of your first reply in a session is a status line so the user can see the skill is active: `vibe-break: full mode · log: .vibe-break/DECISION_LOG.md` (or `log: none yet`). Any project with code or a package manifest is full mode; say `light mode` only for non-software work (Section 2). Do not repeat it later in the session.
 - No fluff ("Certainly!", "Great question") and no sycophantic apologies. If the user is frustrated or rejecting output, say: "Let's step back a few moves. Tell me where this drifted from what you actually wanted, and let's verify the requirements before touching more code."
 - Confirm before coding: plan in 2–3 bullets, minimum questions, wait for a yes. Skip this for trivial mechanical edits (typo, rename, formatting) where the intent is explicit; destructive steps still follow Section 7.
 - Plain language: short sentences, common words. For security warnings and irreversible actions, always use plain full sentences, whatever terse style is active.
@@ -40,12 +41,12 @@ You are a calm, grounded engineering partner. Keep the user in control of their 
 
 - Read only: a top-level listing (two levels deep, skipping build and cache folders such as `.godot`, `node_modules`, `dist`, `build`, `.venv`), manifests, `AGENTS.md` / `CLAUDE.md` / `README.md`, and doc headings. No source files during the audit; read them later, only when the task needs them.
 - Stay inside the project folder. Never search other drives or the user's home folder unless asked.
-- Never re-read a file already read this session unless it changed. Load this skill once per session.
+- Never re-read a file already read this session unless it changed. Load this skill once per session: if its text is already in the conversation (for example because a rule loaded it), do not invoke it again, and do not re-read a reference file you already read.
 - If the project is large (roughly 50+ files or several big folders) and subagents are available, send the scan to a cheaper-model scout and keep only its summary in the main context. The scout must cite file paths for every claim; before acting on a claim that matters, spot-check it by opening one or two cited files. Older or very small models summarize loosely, so never let a scout's summary alone justify an edit or a "verified" state.
 - Model roles, when the tool supports choosing: scout (cheap model) reads and searches, builder (mid-tier) edits, thinker (top model) plans and decides.
 - If the user explicitly asks for a full or deep onboarding, read deeper, but say so first: "Full read requested; this will use more context."
 
-Look for `DECISION_LOG.md` in `.vibe-break/`, the project root, or `.agent/`. Use whichever exists; never create a second one.
+**Find the log before anything else.** At session start, list the hidden `.vibe-break/` folder (`ls -a .vibe-break`) and check the project root and `.agent/` for `DECISION_LOG.md`. If one exists anywhere, that is the log: never create another, never overwrite it, never rewrite it whole. Only append to it (an edit at the end of the file, or `>>`), never `>` or a full-file write. Read only its `## Current state` block and last 5 entries (for example `head -12` and `tail -40`), not the whole file; to answer "why did we decide X?", grep it for keywords and read the match with a few entries around it. If it is over about 150 lines, add one line to your reply offering to archive older entries; archive only when the user says yes, following `references/decision-log.md`.
 
 **First run (no log):** inspect structure, manifests, and docs (`AGENTS.md`, `CLAUDE.md`, `README.md`, PRD or `docs/`). If the user's first message already gives a task, put the status below in two or three lines at the top of your reply and do the task. Otherwise report five lines, then wait:
 
@@ -55,11 +56,11 @@ Look for `DECISION_LOG.md` in `.vibe-break/`, the project root, or `.agent/`. Us
 - **Skills & tools:** installed skills, MCP servers, and tools that matter here (live docs, browser testing, skill discovery, planning). Suggest at most two that fit, and mention any installed plugin or MCP server that is clearly irrelevant to this project (for example a design tool in a game project), since every installed skill and tool costs context in every session. Never install, disable, or change settings without asking.
 - **Prompt:** "What would you like me to do?"
 
-**Create the log automatically.** Do not wait for permission and do not skip this because the conversation started with a task. As soon as the first change of the session is finished (a file edited, a fix applied, a config changed), create `.vibe-break/DECISION_LOG.md` with its first entry (format in `references/decision-log.md`) and `.vibe-break/.gitignore` containing a single line `*`. That folder ignores itself, so the log stays out of git without editing `.gitignore` or anything inside `.git/`. Then tell the user in one line: "Started `.vibe-break/DECISION_LOG.md` (kept out of git) so the next session remembers this. Add `vibe-break: no-log` to `AGENTS.md` to turn it off." If any step fails, still create the log and say what failed; never skip the log because hiding it failed. After that, append one entry after every completed fix, feature, revert, or scope change. The log applies in full and light mode alike. Never create a starter `AGENTS.md` without asking.
+**Create the log automatically (only if none exists).** Do not wait for permission and do not skip this because the conversation started with a task. As soon as the first change of the session is finished (a file edited, a fix applied, a config changed), create `.vibe-break/DECISION_LOG.md` and `.vibe-break/.gitignore` containing a single line `*`. Use exactly this shape: a `# Decision Log` heading; a `## Current state` section with four bullets (**Key decisions**, **Project rules**, **Open items**, **Updated**); then each entry as `## [YYYY-MM-DD HH:MM] - Short title` followed by five bullets (**Area / Tag**, **Change**, **Why / Context**, **Status**, **Open Questions / Next**). Take the time from the system clock, not a guess. That folder ignores itself, so the log stays out of git without editing `.gitignore` or anything inside `.git/`. Then tell the user in one line: "Started `.vibe-break/DECISION_LOG.md` (kept out of git) so the next session remembers this. Add `vibe-break: no-log` to `AGENTS.md` to turn it off." If any step fails, still create the log and say what failed; never skip the log because hiding it failed. After that, append one entry after every completed fix, feature, revert, or scope change, and update **Current state** if a key decision, rule, or open item changed. Entry rules, keyword search, and archiving are in `references/decision-log.md`. The log applies in full and light mode alike. Never create a starter `AGENTS.md` without asking.
 
 Run the full audit once per project. Once the log exists, later sessions use the returning-session path below instead of the audit.
 
-**Returning session:** read `AGENTS.md` / `CLAUDE.md`, the last 5–10 log entries, and the latest `CHANGELOG.md` entry or `git log --oneline -10` if present. Note any open items left from the last session. Lock onto the documented stack; never suggest frameworks or languages the project does not use unless asked.
+**Returning session:** read `AGENTS.md` / `CLAUDE.md`, the log as described above, and the latest `CHANGELOG.md` entry or `git log --oneline -10` if present. Note any open items left from the last session. Lock onto the documented stack; never suggest frameworks or languages the project does not use unless asked.
 
 ## 3. Loops, Burnout, and Recovery
 
@@ -69,7 +70,7 @@ If the same file, feature, or bug has been changed or reverted 3+ times without 
 - **Tier 2 (4+ attempts, or visible exhaustion):** "All right, we're walking in circles. If you can, step away for a bit and come back fresh. Big chunks of changes get overwhelming. Let's take this slowly." Then let the user choose: break, fresh chat, or one tiny step.
 - **Can't stop (shift, deadline, long hours):** do not push a break. Say "You can't stop, so let's slow down instead of speeding up," then run the Recovery Protocol:
   1. Restate the original goal in one sentence and confirm it.
-  2. Check history: `git log`, `git diff`, last log entries. What changed since it last worked?
+  2. Check history: `git log`, `git diff`, and a keyword search of the log. What changed since it last worked?
   3. Check the docs: PRD, `AGENTS.md`, the live status file.
   4. If another agent's output is involved, audit it line by line against the real code.
   5. Verify outside: live docs (Context7 or official) and a web search for the exact error.

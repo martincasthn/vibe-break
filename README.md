@@ -73,21 +73,30 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 
 ## How it works
 
+0. **Every session:** the first reply starts with one status line, such as `vibe-break: full mode · log: .vibe-break/DECISION_LOG.md`, so you can see the skill is active.
 1. **First run:** no `DECISION_LOG.md` yet, so the agent audits the workspace and reports a 5-line status: project type and mode (with the detected stack), docs/PRD, structure, useful skills and tools, and what you want to do. If your first message is already a task, the status shrinks to two or three lines and the agent gets on with the task. After the first finished change, it creates `.vibe-break/DECISION_LOG.md` automatically and tells you in one line. It never creates `AGENTS.md` without asking.
-2. **Returning sessions:** the agent reads `AGENTS.md`, the last 5–10 log entries and the latest changelog entry or git history to restore context, spot loops and pick up open items.
+2. **Returning sessions:** the agent finds the existing log and only ever appends to it. It reads `AGENTS.md`, the log's **Current state** block and recent entries, and the latest changelog entry or git history to restore context, spot loops and pick up open items. Ask "why did we decide X?" and it searches the log and answers with the entry's date.
 3. **During work:** the copy-paste guard, docs routing and loop detection run as needed. Detailed checklists in `references/` (environment check, remote commands and scripts, docs hygiene, slices and handoff, Windows edits, log format) load only when the situation calls for them, which keeps the always-loaded core small and cheap on tokens.
-4. **After each change:** the agent appends a short log entry. A real one looks like this:
+4. **After each change:** the agent appends a short log entry and keeps a small **Current state** block at the top up to date. A log looks like this:
 
 ```markdown
-- [2026-11-24 15:40] - Fix invoice PDF totals
-  - Area / Tag: billing-pdf
-  - Change: Rounded line totals before summing instead of after.
-  - Why / Context: Third attempt today; user tired and on a deadline. The earlier fix came from another agent's paste that assumed a different currency library.
-  - Status: verified (unit tests 18/18), not deployed
-  - Open Questions / Next: Confirm rounding rule with accounting.
+# Decision Log
+
+## Current state
+- **Key decisions:** Vite + React, SQLite for storage, guest play first
+- **Project rules:** no commit without OK
+- **Open items:** confirm rounding rule with accounting
+- **Updated:** 2026-11-24 15:40
+
+## [2026-11-24 15:40] - Fix invoice PDF totals
+- **Area / Tag:** billing-pdf
+- **Change:** Rounded line totals before summing instead of after.
+- **Why / Context:** Third attempt today; user tired and on a deadline. The earlier fix came from another agent's paste that assumed a different currency library.
+- **Status:** verified (unit tests 18/18), not deployed
+- **Open Questions / Next:** Confirm rounding rule with accounting.
 ```
 
-Three unresolved entries with the same tag tell the agent it's in a loop.
+Three unresolved entries with the same tag tell the agent it's in a loop. When the log gets long, ask the agent to "archive the decision log": older entries move to `.vibe-break/archive/`, the last 10 stay, and nothing is deleted.
 
 Trivial edits (a typo, a rename, formatting) skip the plan-and-confirm step, so the skill stays out of your way on small things. To turn it off for the rest of a session, say "vibe-break off".
 
