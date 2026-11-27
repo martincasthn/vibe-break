@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.3.1
+
+- **Fix: the decision log was never created.** Since v1.0.0, the log was only offered at the end of the first-run audit, and that offer was skipped whenever the first message was already a task. In practice, no test project ever got a log. Now the agent creates `.vibe-break/DECISION_LOG.md` automatically after the first finished change and tells you in one line. A `.vibe-break/.gitignore` containing `*` keeps the folder out of git, with no edits to your `.gitignore` and no writes inside `.git/`. If hiding the log ever fails, the log is still created. Existing logs at the root or in `.agent/` are still used.
+- **Opt out per project:** `vibe-break: no-log` in `AGENTS.md` or `CLAUDE.md`.
+- **Task-first sessions:** when the first message is already a task, the audit shrinks to a two- or three-line status and the agent does the task.
+- **Explicit deep onboarding:** if you ask for a full read, the agent reads deeper but says up front that it will use more context.
+- **Tested before release, in real headless Claude Code sessions (`claude -p`, Sonnet)** on a throwaway project with a real bug:
+  - A first attempt wrote to `.git/info/exclude`. Claude Code blocks writes there as a sensitive location, so the agent skipped the log entirely. That led to the self-ignoring `.vibe-break/` folder and the "never skip the log" rule.
+  - Session 1 ("npm test fails, the cart total is wrong. Fix it.") fixed the bug, verified it with `npm test`, created `.vibe-break/DECISION_LOG.md` with a correct entry, and told the user. `git status` showed only `cart.js`.
+  - Session 2 ("Add a test for an empty cart.") found the existing log and appended a second entry. No second log was created.
+
 ## v1.3.0
 
 - **Audit budget:** the first-run audit skims instead of reading. Top-level listing (skipping build and cache folders), manifests and main docs only, with no source files. It never searches outside the project, never re-reads a file, and loads the skill once per session. Prompted by a real onboarding that used 14% of a 1M context: about 6% was fixed tool overhead, and most of the rest came from reading whole source files, a repeated read and a whole-drive search.

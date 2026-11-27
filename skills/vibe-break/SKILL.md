@@ -29,7 +29,7 @@ You are a calm, grounded engineering partner. Keep the user in control of their 
 
 ## 2. Session Start Audit
 
-**Project override first.** If the project's `AGENTS.md` or `CLAUDE.md` contains `vibe-break: off`, stop here and follow no vibe-break rules. If it contains `vibe-break: light`, use light mode (below) and skip the audit.
+**Project override first.** If the project's `AGENTS.md` or `CLAUDE.md` contains `vibe-break: off`, stop here and follow no vibe-break rules. If it contains `vibe-break: light`, use light mode (below) and skip the audit. If it contains `vibe-break: no-log`, never create `DECISION_LOG.md`.
 
 **Mode by project type:**
 
@@ -43,18 +43,21 @@ You are a calm, grounded engineering partner. Keep the user in control of their 
 - Never re-read a file already read this session unless it changed. Load this skill once per session.
 - If the project is large (roughly 50+ files or several big folders) and subagents are available, send the scan to a cheaper-model scout and keep only its summary in the main context. The scout must cite file paths for every claim; before acting on a claim that matters, spot-check it by opening one or two cited files. Older or very small models summarize loosely, so never let a scout's summary alone justify an edit or a "verified" state.
 - Model roles, when the tool supports choosing: scout (cheap model) reads and searches, builder (mid-tier) edits, thinker (top model) plans and decides.
+- If the user explicitly asks for a full or deep onboarding, read deeper, but say so first: "Full read requested; this will use more context."
 
-Look for `DECISION_LOG.md` (root or `.agent/`).
+Look for `DECISION_LOG.md` in `.vibe-break/`, the project root, or `.agent/`. Use whichever exists; never create a second one.
 
-**First run (no log):** inspect structure, manifests, and docs (`AGENTS.md`, `CLAUDE.md`, `README.md`, PRD or `docs/`). Report five lines, then wait:
+**First run (no log):** inspect structure, manifests, and docs (`AGENTS.md`, `CLAUDE.md`, `README.md`, PRD or `docs/`). If the user's first message already gives a task, put the status below in two or three lines at the top of your reply and do the task. Otherwise report five lines, then wait:
 
 - **Project type:** software (full mode) or non-software (light mode), with one reason. Include detected stack or "None detected".
 - **Docs / PRD:** what exists, what is missing, and any duplicated or stale status docs.
 - **Structure:** clean, empty, or messy.
 - **Skills & tools:** installed skills, MCP servers, and tools that matter here (live docs, browser testing, skill discovery, planning). Suggest at most two that fit, and mention any installed plugin or MCP server that is clearly irrelevant to this project (for example a design tool in a game project), since every installed skill and tool costs context in every session. Never install, disable, or change settings without asking.
-- **Prompt:** "What would you like me to do? I can also create a starter `AGENTS.md` and `DECISION_LOG.md` once you confirm."
+- **Prompt:** "What would you like me to do?"
 
-Run the full audit once. If the user declines the log, do not ask again in this session; offer to add `vibe-break: light` or `vibe-break: off` to `AGENTS.md` so future sessions skip the audit too. In later sessions without a log, a one-line status replaces the full audit.
+**Create the log automatically.** Do not wait for permission and do not skip this because the conversation started with a task. As soon as the first change of the session is finished (a file edited, a fix applied, a config changed), create `.vibe-break/DECISION_LOG.md` with its first entry (format in `references/decision-log.md`) and `.vibe-break/.gitignore` containing a single line `*`. That folder ignores itself, so the log stays out of git without editing `.gitignore` or anything inside `.git/`. Then tell the user in one line: "Started `.vibe-break/DECISION_LOG.md` (kept out of git) so the next session remembers this. Add `vibe-break: no-log` to `AGENTS.md` to turn it off." If any step fails, still create the log and say what failed; never skip the log because hiding it failed. After that, append one entry after every completed fix, feature, revert, or scope change. The log applies in full and light mode alike. Never create a starter `AGENTS.md` without asking.
+
+Run the full audit once per project. Once the log exists, later sessions use the returning-session path below instead of the audit.
 
 **Returning session:** read `AGENTS.md` / `CLAUDE.md`, the last 5–10 log entries, and the latest `CHANGELOG.md` entry or `git log --oneline -10` if present. Note any open items left from the last session. Lock onto the documented stack; never suggest frameworks or languages the project does not use unless asked.
 

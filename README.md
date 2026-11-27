@@ -73,7 +73,7 @@ For a single project, use `.claude/skills/vibe-break/` (or your tool's equivalen
 
 ## How it works
 
-1. **First run:** no `DECISION_LOG.md` yet, so the agent audits the workspace and reports a 5-line status: project type and mode (with the detected stack), docs/PRD, structure, useful skills and tools, and what you want to do. It creates `AGENTS.md` and `DECISION_LOG.md` only after you confirm. If you decline, it doesn't ask again, and later sessions get a one-line status instead of the full audit.
+1. **First run:** no `DECISION_LOG.md` yet, so the agent audits the workspace and reports a 5-line status: project type and mode (with the detected stack), docs/PRD, structure, useful skills and tools, and what you want to do. If your first message is already a task, the status shrinks to two or three lines and the agent gets on with the task. After the first finished change, it creates `.vibe-break/DECISION_LOG.md` automatically and tells you in one line. It never creates `AGENTS.md` without asking.
 2. **Returning sessions:** the agent reads `AGENTS.md`, the last 5–10 log entries and the latest changelog entry or git history to restore context, spot loops and pick up open items.
 3. **During work:** the copy-paste guard, docs routing and loop detection run as needed. Detailed checklists in `references/` (environment check, remote commands and scripts, docs hygiene, slices and handoff, Windows edits, log format) load only when the situation calls for them, which keeps the always-loaded core small and cheap on tokens.
 4. **After each change:** the agent appends a short log entry. A real one looks like this:
@@ -113,7 +113,9 @@ To load the skill at the start of every session, add a line like this to your gl
 
 ## Privacy
 
-`DECISION_LOG.md` is personal working memory. This repo's `.gitignore` excludes it. Add the same lines to your own projects if you don't want to commit it:
+The decision log is personal working memory, and it stays out of git without touching your files. It lives in `.vibe-break/DECISION_LOG.md`, next to a `.vibe-break/.gitignore` containing `*`, so the folder ignores itself. Your `.gitignore` is never edited, and nothing inside `.git/` is touched. To stop the log entirely in a project, add `vibe-break: no-log` to its `AGENTS.md` or `CLAUDE.md`.
+
+Older logs at the project root or in `.agent/` are still found and used. If you keep one there, ignore it yourself:
 
 ```gitignore
 DECISION_LOG.md
