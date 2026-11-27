@@ -22,7 +22,9 @@ Three rounds, with fixes between them:
 
 **Known, not a regression:** in a writing-only project with no code, a one-off edit request didn't load vibe-break at all, so there was no status line and no log. v1.3.1 behaves the same way in the identical test, so this predates v1.4.0. It's on the list for a future release.
 
-**Not working yet:** agents still read the whole log instead of just the Current state block and recent entries, and they didn't offer to archive on their own once the log passed 150 lines. Both rules stay in the skill as guidance but aren't promised; archiving works when you ask for it.
+- **Final check on the released text:** the big-log test (31 of 31 entries, one log, SQLite answered from the log, plain text with no UTF-16 or BOM) and the archive test (31 of 31 preserved, Current state kept the SQLite reason and pointed to the archived entry) both passed again.
+
+**Not reliable yet:** agents still read the whole log instead of just the Current state block and recent entries. This costs some tokens but loses nothing. The unprompted offer to archive once the log passes 150 lines appeared in 1 of 3 runs. Archiving itself works every time you ask for it.
 
 ## v1.3.1
 
