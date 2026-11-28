@@ -20,6 +20,8 @@ npx skills add martincasthn/vibe-break -g
 
 Short form: `npx skills i martincasthn/vibe-break`. To uninstall: `npx skills remove vibe-break` (add `-g` for a global install).
 
+**After upgrading, start a new session.** A session that is already running keeps the skill text it loaded when it started, so new rules only apply in new sessions. Existing decision logs are upgraded automatically the next time the agent appends to them.
+
 ### Project modes
 
 A global install doesn't force software rules onto every project. On the first run the agent picks a mode:

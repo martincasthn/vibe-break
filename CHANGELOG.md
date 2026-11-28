@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.4.1
+
+- **Fix (important): an existing log could still be overwritten.** In testing, Sonnet ran a plain `ls`, which hides the `.vibe-break/` folder, decided there was no log, and replaced a 22-entry log with a new one. Now the agent must read the exact path `.vibe-break/DECISION_LOG.md` right before creating the log, and may create it only if that read says the file doesn't exist. The check sits at the moment of action and doesn't depend on `ls` flags, hidden folders or the shell.
+- **Older logs get upgraded:** a log made before v1.4.0 (no `## Current state`, looser format) gets a Current state block inserted below its heading on the next append, built from the existing entries. Old entries are never reformatted or reordered.
+- **Upgrade note:** after updating, start a new session. A running session keeps the skill text it loaded at the start.
+
+### Tested before release (real `claude -p` sessions)
+
+| Scenario | Opus | Sonnet | Haiku |
+|---|---|---|---|
+| Old-format log (22 entries, 156 lines) + a bug fix | ✅ Current state inserted, 22/22 entries kept verbatim, flagged a missing doc and duplicate entries | ❌ before the fix: **log overwritten**. ✅ after the fix: **3 of 3 runs** kept 22/22 entries verbatim and inserted Current state. In one run the agent first said "no log yet", and the read check caught it. | ⚠️ didn't load vibe-break at all |
+| New project + a bug fix | (passed in v1.4.0) | ✅ status line, log created with the template | ⚠️ didn't load vibe-break at all |
+| Old log from a *different* project | ✅ refused to append, asked what to do | ✅ refused to append, asked what to do | - |
+
+**Known limit:** Haiku, as the main agent, didn't load the skill in any test. It works as a scout or helper under an Opus or Sonnet lead, which is the intended setup, but vibe-break doesn't apply when Haiku is the main model.
+
 ## v1.4.0
 
 - **Fix (important): an existing log could be overwritten.** In v1.3.1, an agent that didn't look inside the hidden `.vibe-break/` folder could decide there was no log and replace it with a new one, losing all history. Now the agent lists `.vibe-break/` first, uses the log it finds, and only ever appends to it, never with `>` or a full-file write.
