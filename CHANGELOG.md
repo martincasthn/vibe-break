@@ -4,7 +4,7 @@
 
 - **Fix (important): an existing log could be overwritten.** In v1.3.1, an agent that didn't look inside the hidden `.vibe-break/` folder could decide there was no log and replace it with a new one, losing all history. Now the agent lists `.vibe-break/` first, uses the log it finds, and only ever appends to it, never with `>` or a full-file write.
 - **Visible status line:** the first reply of a session starts with `vibe-break: full mode · log: …`, so you can see the skill is active.
-- **Loads once:** if a rule already loaded the skill, it isn't invoked again.
+- **Loads once:** if a rule already loaded the skill, it isn't invoked again. (Correction: the "loaded twice" problem that prompted this was a counting mistake. Session logs store each tool call twice, and both copies were counted. The rule stays as a safeguard.)
 - **Fixed log template:** a `## Current state` block (key decisions, project rules, open items, updated) followed by consistent entries, with the time taken from the system clock. The template is now in the core, because agents rarely opened the reference file.
 - **Ask about the past:** "why did we decide X?" is answered from the log, citing the entry's date.
 - **Windows-safe log handling:** the log is found with file tools or the right command for the shell (`ls -a` in bash, `Get-ChildItem -Force` in PowerShell), and a failed listing is never taken as proof the log is missing. Writes go through the editor tool, never shell redirection, because `>>` in Windows PowerShell 5.1 writes UTF-16 and mangles the file.
