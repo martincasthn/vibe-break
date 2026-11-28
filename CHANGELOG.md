@@ -5,6 +5,10 @@
 - **Fix (important): an existing log could still be overwritten.** In testing, Sonnet ran a plain `ls`, which hides the `.vibe-break/` folder, decided there was no log, and replaced a 22-entry log with a new one. Now the agent must read the exact path `.vibe-break/DECISION_LOG.md` right before creating the log, and may create it only if that read says the file doesn't exist. The check sits at the moment of action and doesn't depend on `ls` flags, hidden folders or the shell.
 - **Older logs get upgraded:** a log made before v1.4.0 (no `## Current state`, looser format) gets a Current state block inserted below its heading on the next append, built from the existing entries. Old entries are never reformatted or reordered.
 - **Upgrade note:** after updating, start a new session. A running session keeps the skill text it loaded at the start.
+- **Clear role:** the skill now says what the agent is in concrete terms: a senior engineer pairing with you, who checks before claiming, asks before anything destructive, tracks every reported issue until it's closed, keeps the decision log, and says plainly what isn't verified. You decide.
+- **When a session is done:** when you wrap up, or the task is complete, the agent closes with a short handoff: **Done** (with state and the check behind it), **Half-done / untouched**, **Log**, and **Git** (what's committed, and what's waiting for your OK). If a line can't be filled honestly, the session isn't done.
+
+The last two came from public feedback: verify-before-done was called the strongest part, with requests to say who the skill acts as and when a session is actually done.
 
 ### Tested before release (real `claude -p` sessions)
 
@@ -13,6 +17,8 @@
 | Old-format log (22 entries, 156 lines) + a bug fix | ✅ Current state inserted, 22/22 entries kept verbatim, flagged a missing doc and duplicate entries | ❌ before the fix: **log overwritten**. ✅ after the fix: **3 of 3 runs** kept 22/22 entries verbatim and inserted Current state. In one run the agent first said "no log yet", and the read check caught it. | ⚠️ didn't load vibe-break at all |
 | New project + a bug fix | (passed in v1.4.0) | ✅ status line, log created with the template | ⚠️ didn't load vibe-break at all |
 | Old log from a *different* project | ✅ refused to append, asked what to do | ✅ refused to append, asked what to do | - |
+| "Fix it, that's it for today" (session close) | ✅ handoff with Done, Not done, Log, Git | ✅ handoff with Done, Half-done, Log, Git | - |
+| Regression: old log after the role and session-close changes | - | ✅ 22/22 entries kept verbatim, Current state inserted | - |
 
 **Known limit:** Haiku, as the main agent, didn't load the skill in any test. It works as a scout or helper under an Opus or Sonnet lead, which is the intended setup, but vibe-break doesn't apply when Haiku is the main model.
 
